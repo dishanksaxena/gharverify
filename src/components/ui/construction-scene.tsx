@@ -108,9 +108,9 @@ export function ConstructionScene({
           </linearGradient>
           {/* fade the whole scene toward the top so headlines stay readable */}
           <linearGradient id="cscene-mask" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#000" stopOpacity="0.1" />
-            <stop offset="16%" stopColor="#000" stopOpacity="0.65" />
-            <stop offset="55%" stopColor="#000" stopOpacity="0.95" />
+            <stop offset="0%" stopColor="#000" stopOpacity="0.35" />
+            <stop offset="22%" stopColor="#000" stopOpacity="0.8" />
+            <stop offset="55%" stopColor="#000" stopOpacity="0.98" />
             <stop offset="100%" stopColor="#000" stopOpacity="1" />
           </linearGradient>
           <mask id="cscene-fade">
@@ -120,7 +120,7 @@ export function ConstructionScene({
 
         <g mask="url(#cscene-fade)">
           {/* ground line + measuring ticks */}
-          <line x1="0" y1={GROUND} x2="1440" y2={GROUND} stroke={ACCENT} strokeOpacity="0.45" strokeWidth="1.5" />
+          <line x1="0" y1={GROUND} x2="1440" y2={GROUND} stroke={ACCENT} strokeOpacity="0.7" strokeWidth="2" />
           <rect x="0" y={GROUND} width="1440" height="60" fill="url(#cscene-ground)" />
           {Array.from({ length: 48 }).map((_, i) => (
             <line
@@ -148,9 +148,10 @@ export function ConstructionScene({
 /* ---- Tower crane: rotating sway, trolley travel, hook lift -------------- */
 
 function Crane() {
-  const stroke = { stroke: ACCENT, strokeWidth: 1.6, strokeOpacity: 0.8, strokeLinecap: "round" as const };
+  const stroke = { stroke: ACCENT, strokeWidth: 2.1, strokeOpacity: 1, strokeLinecap: "round" as const };
 
   return (
+    <g transform="translate(-250, 0)">
     <motion.g
       filter="url(#cscene-glow)"
       style={{ transformBox: "fill-box", transformOrigin: "1002px 175px" }}
@@ -210,6 +211,7 @@ function Crane() {
         </motion.g>
       </motion.g>
     </motion.g>
+    </g>
   );
 }
 
@@ -225,6 +227,10 @@ function RisingTower() {
 
   return (
     <g filter="url(#cscene-glow)">
+      {/* always-visible structural outline + scaffolding */}
+      <rect x={fx} y={GROUND - FLOORS * fh} width={fw} height={FLOORS * fh} fill="none" stroke={ACCENT} strokeWidth="1.2" strokeOpacity="0.3" strokeDasharray="4 5" />
+      <line x1={fx - 10} y1={GROUND} x2={fx - 10} y2={GROUND - FLOORS * fh - 18} stroke={ACCENT} strokeWidth="1.4" strokeOpacity="0.4" />
+      <line x1={fx + fw + 10} y1={GROUND} x2={fx + fw + 10} y2={GROUND - FLOORS * fh - 18} stroke={ACCENT} strokeWidth="1.4" strokeOpacity="0.4" />
       {Array.from({ length: FLOORS }).map((_, i) => {
         const y = GROUND - (i + 1) * fh;
         const t = (i / FLOORS) * buildSpan;
@@ -247,10 +253,10 @@ function RisingTower() {
               width={fw}
               height={fh - 3}
               fill={ACCENT}
-              fillOpacity="0.05"
+              fillOpacity="0.09"
               stroke={ACCENT}
-              strokeWidth="1.5"
-              strokeOpacity="0.8"
+              strokeWidth="2"
+              strokeOpacity="1"
             />
             {/* windows */}
             {Array.from({ length: 5 }).map((_, w) => (
@@ -306,6 +312,8 @@ function BrickWall() {
 
   return (
     <g filter="url(#cscene-glow)">
+      {/* always-visible wall footprint */}
+      <rect x={ox - 4} y={GROUND - ROWS * (bh + 4)} width={COLS * (bw + 4) + bw / 2} height={ROWS * (bh + 4)} fill="none" stroke={ACCENT} strokeWidth="1.1" strokeOpacity="0.25" strokeDasharray="3 5" />
       {bricks.map((b) => {
         const t = (b.idx / total) * 0.6;
         return (
@@ -317,10 +325,10 @@ function BrickWall() {
             height={bh}
             rx="1.5"
             fill={ACCENT}
-            fillOpacity="0.07"
+            fillOpacity="0.12"
             stroke={ACCENT}
-            strokeWidth="1.3"
-            strokeOpacity="0.75"
+            strokeWidth="1.8"
+            strokeOpacity="1"
             initial={{ opacity: 0, x: b.x + 24 }}
             animate={{ opacity: [0, 0, 1, 1, 0], x: [b.x + 24, b.x + 24, b.x, b.x, b.x] }}
             transition={{

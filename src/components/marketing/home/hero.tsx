@@ -36,7 +36,7 @@ export function Hero() {
         style={{ y: skylineY }}
         className="pointer-events-none absolute inset-0 -z-10"
       >
-        <ConstructionScene opacity={0.7} />
+        <ConstructionScene opacity={0.95} />
       </motion.div>
 
       <div className="mx-auto grid w-full max-w-7xl grid-cols-1 items-center gap-14 px-5 sm:px-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-10">
