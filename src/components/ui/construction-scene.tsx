@@ -2,83 +2,13 @@
 
 import { motion } from "framer-motion";
 
-/**
- * Animated blueprint construction scene.
- * A glowing line-art site that builds itself on loop:
- *  - a tower crane whose trolley travels the jib while the hook lifts a load
- *  - a tower rising floor-by-floor (time-lapse) with windows lighting up
- *  - a brick wall stacking itself
- *  - drifting dust / spark particles
- *
- * Pure SVG + Framer Motion. Sits in the page background. Respects
- * prefers-reduced-motion via the global CSS override.
- */
-
 const ACCENT = "#00e676";
 const CYAN = "#22d3ee";
-
-const GROUND = 560;
-
-/* ---- geometry helpers (engineered truss look) -------------------------- */
-
-type Line = { x1: number; y1: number; x2: number; y2: number };
-
-function lattice(
-  x1: number,
-  x2: number,
-  yTop: number,
-  yBot: number,
-  step: number
-): Line[] {
-  const lines: Line[] = [
-    { x1, y1: yTop, x2, y2: yBot }, // chords
-    { x1: x1 + (x2 - x1), y1: yTop, x2: x1 + (x2 - x1), y2: yBot },
-  ];
-  const vertical = Math.abs(yBot - yTop) > Math.abs(x2 - x1);
-  if (vertical) {
-    const count = Math.floor((yBot - yTop) / step);
-    for (let i = 0; i <= count; i++) {
-      const y = yTop + i * step;
-      lines.push({ x1, y1: y, x2, y2: y }); // rung
-      if (i < count) {
-        const yn = yTop + (i + 1) * step;
-        // alternating diagonal
-        if (i % 2 === 0) lines.push({ x1, y1: y, x2, y2: yn });
-        else lines.push({ x1, y1: yn, x2, y2: y });
-      }
-    }
-  }
-  return lines;
-}
-
-function jibTruss(xStart: number, xEnd: number, yTop: number, yBot: number, step: number): Line[] {
-  const lines: Line[] = [
-    { x1: xStart, y1: yTop, x2: xEnd, y2: yTop },
-    { x1: xStart, y1: yBot, x2: xEnd, y2: yBot },
-  ];
-  const count = Math.floor((xEnd - xStart) / step);
-  for (let i = 0; i <= count; i++) {
-    const x = xStart + i * step;
-    lines.push({ x1: x, y1: yTop, x2: x, y2: yBot });
-    if (i < count) {
-      const xn = xStart + (i + 1) * step;
-      lines.push({ x1: x, y1: yBot, x2: xn, y2: yTop });
-    }
-  }
-  return lines;
-}
-
-const mastLines = lattice(992, 1012, 175, GROUND, 34);
-const jibLines = jibTruss(1012, 1344, 158, 182, 38);
-const counterJib = jibTruss(900, 988, 162, 182, 38);
-
-/* timing shared by the lift cycle so cable + load stay in sync */
-const liftTimes = [0, 0.12, 0.46, 0.8, 1];
-const liftDur = 6;
+const GROUND = 520;
 
 export function ConstructionScene({
   className = "",
-  opacity = 0.55,
+  opacity = 1,
 }: {
   className?: string;
   opacity?: number;
@@ -89,55 +19,59 @@ export function ConstructionScene({
       aria-hidden
     >
       <svg
-        viewBox="0 0 1440 620"
+        viewBox="0 0 1440 560"
         preserveAspectRatio="xMidYMax meet"
         className="h-full w-full"
         style={{ opacity }}
       >
         <defs>
-          <filter id="cscene-glow" x="-30%" y="-30%" width="160%" height="160%">
-            <feGaussianBlur stdDeviation="2.4" result="b" />
+          <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+            <feGaussianBlur stdDeviation="3" result="blur" />
             <feMerge>
-              <feMergeNode in="b" />
+              <feMergeNode in="blur" />
+              <feMergeNode in="blur" />
               <feMergeNode in="SourceGraphic" />
             </feMerge>
           </filter>
-          <linearGradient id="cscene-ground" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor={ACCENT} stopOpacity="0.25" />
-            <stop offset="100%" stopColor={ACCENT} stopOpacity="0" />
+          <filter id="glow-strong" x="-60%" y="-60%" width="220%" height="220%">
+            <feGaussianBlur stdDeviation="5" result="blur" />
+            <feMerge>
+              <feMergeNode in="blur" />
+              <feMergeNode in="blur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+          {/* white gradient = show scene; use alpha to fade top */}
+          <linearGradient id="scene-fade" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#fff" stopOpacity="0" />
+            <stop offset="28%" stopColor="#fff" stopOpacity="0.6" />
+            <stop offset="58%" stopColor="#fff" stopOpacity="1" />
+            <stop offset="100%" stopColor="#fff" stopOpacity="1" />
           </linearGradient>
-          {/* fade the whole scene toward the top so headlines stay readable */}
-          <linearGradient id="cscene-mask" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#000" stopOpacity="0.35" />
-            <stop offset="22%" stopColor="#000" stopOpacity="0.8" />
-            <stop offset="55%" stopColor="#000" stopOpacity="0.98" />
-            <stop offset="100%" stopColor="#000" stopOpacity="1" />
-          </linearGradient>
-          <mask id="cscene-fade">
-            <rect x="0" y="0" width="1440" height="620" fill="url(#cscene-mask)" />
+          <mask id="fade-mask">
+            <rect x="0" y="0" width="1440" height="560" fill="url(#scene-fade)" />
           </mask>
         </defs>
 
-        <g mask="url(#cscene-fade)">
-          {/* ground line + measuring ticks */}
-          <line x1="0" y1={GROUND} x2="1440" y2={GROUND} stroke={ACCENT} strokeOpacity="0.7" strokeWidth="2" />
-          <rect x="0" y={GROUND} width="1440" height="60" fill="url(#cscene-ground)" />
-          {Array.from({ length: 48 }).map((_, i) => (
-            <line
-              key={`tick-${i}`}
-              x1={i * 30}
-              y1={GROUND}
-              x2={i * 30}
-              y2={GROUND + (i % 4 === 0 ? 10 : 5)}
-              stroke={ACCENT}
-              strokeOpacity="0.25"
-              strokeWidth="1"
-            />
+        <g mask="url(#fade-mask)">
+          {/* ── ground line ── */}
+          <line x1="0" y1={GROUND} x2="1440" y2={GROUND}
+            stroke={ACCENT} strokeWidth="2.5" strokeOpacity="0.9" filter="url(#glow)" />
+          <rect x="0" y={GROUND} width="1440" height="40"
+            fill={ACCENT} fillOpacity="0.06" />
+
+          {/* measurement ticks */}
+          {Array.from({ length: 60 }).map((_, i) => (
+            <line key={i}
+              x1={i * 24} y1={GROUND}
+              x2={i * 24} y2={GROUND + (i % 5 === 0 ? 12 : 6)}
+              stroke={ACCENT} strokeOpacity="0.35" strokeWidth="1" />
           ))}
 
-          <RisingTower />
+          <TowerBuilding />
           <BrickWall />
-          <Crane />
+          <TowerCrane />
+          <Scaffolding />
           <Particles />
         </g>
       </svg>
@@ -145,198 +79,106 @@ export function ConstructionScene({
   );
 }
 
-/* ---- Tower crane: rotating sway, trolley travel, hook lift -------------- */
-
-function Crane() {
-  const stroke = { stroke: ACCENT, strokeWidth: 2.1, strokeOpacity: 1, strokeLinecap: "round" as const };
-
-  return (
-    <g transform="translate(-250, 0)">
-    <motion.g
-      filter="url(#cscene-glow)"
-      style={{ transformBox: "fill-box", transformOrigin: "1002px 175px" }}
-      animate={{ rotate: [0, 0.7, 0, -0.7, 0] }}
-      transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
-    >
-      {/* foundation */}
-      <rect x="958" y={GROUND - 4} width="92" height="12" fill="none" {...stroke} />
-
-      {/* mast */}
-      {mastLines.map((l, i) => (
-        <line key={`m-${i}`} {...l} {...stroke} />
-      ))}
-
-      {/* apex A-frame */}
-      <line x1="1002" y1="118" x2="992" y2="175" {...stroke} />
-      <line x1="1002" y1="118" x2="1012" y2="175" {...stroke} />
-      <line x1="1002" y1="118" x2="1180" y2="160" {...stroke} strokeOpacity="0.55" />
-      <line x1="1002" y1="118" x2="930" y2="164" {...stroke} strokeOpacity="0.55" />
-
-      {/* jib + counter-jib */}
-      {jibLines.map((l, i) => (
-        <line key={`j-${i}`} {...l} {...stroke} />
-      ))}
-      {counterJib.map((l, i) => (
-        <line key={`cj-${i}`} {...l} {...stroke} />
-      ))}
-
-      {/* counterweight */}
-      <rect x="896" y="168" width="22" height="26" fill={ACCENT} fillOpacity="0.12" {...stroke} />
-
-      {/* travelling trolley + cable + load (synced lift) */}
-      <motion.g
-        animate={{ x: [0, 150, 150, 30, 0] }}
-        transition={{ duration: liftDur, times: liftTimes, repeat: Infinity, ease: "easeInOut" }}
-      >
-        <rect x="1112" y="178" width="20" height="9" fill={CYAN} fillOpacity="0.18" stroke={CYAN} strokeWidth="1.4" />
-        {/* cable */}
-        <motion.line
-          x1="1122"
-          x2="1122"
-          y1="187"
-          stroke={CYAN}
-          strokeWidth="1.3"
-          strokeOpacity="0.85"
-          animate={{ y2: [GROUND - 14, GROUND - 14, 220, 220, GROUND - 14] }}
-          transition={{ duration: liftDur, times: liftTimes, repeat: Infinity, ease: "easeInOut" }}
-        />
-        {/* hook + suspended load */}
-        <motion.g
-          animate={{ y: [0, 0, -(GROUND - 14 - 220), -(GROUND - 14 - 220), 0] }}
-          transition={{ duration: liftDur, times: liftTimes, repeat: Infinity, ease: "easeInOut" }}
-        >
-          <rect x="1100" y={GROUND - 14} width="44" height="22" fill={ACCENT} fillOpacity="0.16" stroke={ACCENT} strokeWidth="1.5" />
-          <line x1="1108" y1={GROUND - 14} x2="1108" y2={GROUND + 8} stroke={ACCENT} strokeWidth="1" strokeOpacity="0.5" />
-          <line x1="1136" y1={GROUND - 14} x2="1136" y2={GROUND + 8} stroke={ACCENT} strokeWidth="1" strokeOpacity="0.5" />
-        </motion.g>
-      </motion.g>
-    </motion.g>
-    </g>
-  );
-}
-
-/* ---- Rising tower: floors stack bottom-up, windows light up ------------- */
-
-function RisingTower() {
-  const FLOORS = 9;
-  const fx = 250;
-  const fw = 190;
-  const fh = 34;
-  const cycle = 9;
-  const buildSpan = 0.62; // fraction of cycle spent building
+/* ── Tower building that rises floor by floor ── */
+function TowerBuilding() {
+  const FLOORS = 10;
+  const x = 120;
+  const w = 160;
+  const fh = 38;
+  const winW = 22;
+  const winH = 20;
+  const winsPerFloor = 4;
+  const totalH = FLOORS * fh;
 
   return (
-    <g filter="url(#cscene-glow)">
-      {/* always-visible structural outline + scaffolding */}
-      <rect x={fx} y={GROUND - FLOORS * fh} width={fw} height={FLOORS * fh} fill="none" stroke={ACCENT} strokeWidth="1.2" strokeOpacity="0.3" strokeDasharray="4 5" />
-      <line x1={fx - 10} y1={GROUND} x2={fx - 10} y2={GROUND - FLOORS * fh - 18} stroke={ACCENT} strokeWidth="1.4" strokeOpacity="0.4" />
-      <line x1={fx + fw + 10} y1={GROUND} x2={fx + fw + 10} y2={GROUND - FLOORS * fh - 18} stroke={ACCENT} strokeWidth="1.4" strokeOpacity="0.4" />
+    <g filter="url(#glow)">
+      {/* permanent outline / scaffolding before building */}
+      <rect x={x - 12} y={GROUND - totalH - 20} width={w + 24} height={totalH + 20}
+        fill="none" stroke={ACCENT} strokeWidth="1.5" strokeOpacity="0.25" strokeDasharray="6 8" />
+      {/* vertical scaffold poles */}
+      <line x1={x - 12} y1={GROUND} x2={x - 12} y2={GROUND - totalH - 20}
+        stroke={ACCENT} strokeWidth="2" strokeOpacity="0.35" />
+      <line x1={x + w + 12} y1={GROUND} x2={x + w + 12} y2={GROUND - totalH - 20}
+        stroke={ACCENT} strokeWidth="2" strokeOpacity="0.35" />
+
       {Array.from({ length: FLOORS }).map((_, i) => {
-        const y = GROUND - (i + 1) * fh;
-        const t = (i / FLOORS) * buildSpan;
+        const floorY = GROUND - (i + 1) * fh;
+        const delay = i * 0.9;
         return (
-          <motion.g
-            key={`floor-${i}`}
-            style={{ transformBox: "fill-box", transformOrigin: "bottom" }}
+          <motion.g key={i}
             initial={{ opacity: 0, scaleY: 0 }}
-            animate={{ opacity: [0, 0, 1, 1, 0], scaleY: [0, 0, 1, 1, 1] }}
-            transition={{
-              duration: cycle,
-              times: [0, t, Math.min(t + 0.05, 0.95), 0.9, 1],
-              repeat: Infinity,
-              ease: "easeOut",
-            }}
+            animate={{ opacity: [0, 0, 1, 1, 1, 0], scaleY: [0, 0, 1, 1, 1, 0] }}
+            style={{ transformBox: "fill-box", transformOrigin: `${x + w / 2}px ${floorY + fh}px` }}
+            transition={{ duration: 12, delay: 0, times: [0, delay / 12, (delay + 0.4) / 12, 0.82, 0.95, 1], repeat: Infinity, ease: "easeOut" }}
           >
-            <rect
-              x={fx}
-              y={y}
-              width={fw}
-              height={fh - 3}
-              fill={ACCENT}
-              fillOpacity="0.09"
-              stroke={ACCENT}
-              strokeWidth="2"
-              strokeOpacity="1"
-            />
+            {/* slab */}
+            <rect x={x} y={floorY} width={w} height={fh - 2}
+              fill={ACCENT} fillOpacity="0.07"
+              stroke={ACCENT} strokeWidth="2.2" strokeOpacity="1" />
             {/* windows */}
-            {Array.from({ length: 5 }).map((_, w) => (
-              <motion.rect
-                key={`win-${i}-${w}`}
-                x={fx + 14 + w * 35}
-                y={y + 9}
-                width="20"
-                height={fh - 18}
+            {Array.from({ length: winsPerFloor }).map((_, w2) => (
+              <motion.rect key={w2}
+                x={x + 12 + w2 * 38} y={floorY + 9}
+                width={winW} height={winH}
                 fill={CYAN}
-                stroke="none"
-                animate={{ fillOpacity: [0.05, 0.05, 0.4, 0.12, 0.4, 0.05] }}
-                transition={{
-                  duration: cycle,
-                  times: [0, t + 0.04, t + 0.08, 0.5, 0.75, 1],
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                  delay: w * 0.12,
-                }}
+                animate={{ fillOpacity: [0, 0.5, 0.15, 0.5, 0.15, 0] }}
+                transition={{ duration: 12, delay: w2 * 0.15, repeat: Infinity, ease: "easeInOut" }}
               />
             ))}
           </motion.g>
         );
       })}
-      {/* rooftop crane mast hint */}
-      <line x1={fx + fw / 2} y1={GROUND - FLOORS * fh} x2={fx + fw / 2} y2={GROUND - FLOORS * fh - 26} stroke={ACCENT} strokeWidth="1.4" strokeOpacity="0.5" />
+
+      {/* rooftop mast */}
+      <line x1={x + w / 2} y1={GROUND - totalH} x2={x + w / 2} y2={GROUND - totalH - 36}
+        stroke={ACCENT} strokeWidth="3" strokeOpacity="0.7" filter="url(#glow-strong)" />
+      <circle cx={x + w / 2} cy={GROUND - totalH - 38} r="5"
+        fill={ACCENT} fillOpacity="0.9" filter="url(#glow-strong)" />
     </g>
   );
 }
 
-/* ---- Brick wall: bricks slide + fade in, row by row -------------------- */
-
+/* ── Brick wall stacking itself ── */
 function BrickWall() {
-  const ROWS = 5;
-  const COLS = 5;
-  const bw = 36;
-  const bh = 15;
-  const ox = 620;
-  const cycle = 8;
+  const ROWS = 6;
+  const COLS = 6;
+  const bw = 42;
+  const bh = 18;
+  const gap = 4;
+  const ox = 370;
+  const cycle = 10;
 
-  const bricks: { x: number; y: number; idx: number }[] = [];
-  for (let r = 0; r < ROWS; r++) {
-    const offset = r % 2 === 0 ? 0 : bw / 2;
-    for (let c = 0; c < COLS; c++) {
-      bricks.push({
-        x: ox + offset + c * (bw + 4),
-        y: GROUND - (r + 1) * (bh + 4),
+  const bricks = Array.from({ length: ROWS }).flatMap((_, r) =>
+    Array.from({ length: COLS }).map((_, c) => {
+      const offset = r % 2 === 0 ? 0 : bw / 2;
+      return {
+        x: ox + offset + c * (bw + gap),
+        y: GROUND - (r + 1) * (bh + gap),
         idx: r * COLS + c,
-      });
-    }
-  }
-  const total = bricks.length;
+        total: ROWS * COLS,
+      };
+    })
+  );
 
   return (
-    <g filter="url(#cscene-glow)">
-      {/* always-visible wall footprint */}
-      <rect x={ox - 4} y={GROUND - ROWS * (bh + 4)} width={COLS * (bw + 4) + bw / 2} height={ROWS * (bh + 4)} fill="none" stroke={ACCENT} strokeWidth="1.1" strokeOpacity="0.25" strokeDasharray="3 5" />
+    <g filter="url(#glow)">
+      {/* outline frame */}
+      <rect x={ox - 4} y={GROUND - ROWS * (bh + gap) - 4}
+        width={COLS * (bw + gap) + bw / 2 + 8} height={ROWS * (bh + gap) + 8}
+        fill="none" stroke={ACCENT} strokeWidth="1.2" strokeOpacity="0.22" strokeDasharray="5 7" />
+
       {bricks.map((b) => {
-        const t = (b.idx / total) * 0.6;
+        const t = (b.idx / b.total) * 0.65;
         return (
-          <motion.rect
-            key={`brick-${b.idx}`}
-            x={b.x}
-            y={b.y}
-            width={bw}
-            height={bh}
-            rx="1.5"
-            fill={ACCENT}
-            fillOpacity="0.12"
-            stroke={ACCENT}
-            strokeWidth="1.8"
-            strokeOpacity="1"
-            initial={{ opacity: 0, x: b.x + 24 }}
-            animate={{ opacity: [0, 0, 1, 1, 0], x: [b.x + 24, b.x + 24, b.x, b.x, b.x] }}
-            transition={{
-              duration: cycle,
-              times: [0, t, Math.min(t + 0.05, 0.95), 0.9, 1],
-              repeat: Infinity,
-              ease: "easeOut",
-            }}
+          <motion.rect key={b.idx}
+            x={b.x} y={b.y}
+            width={bw} height={bh}
+            rx="2"
+            fill={ACCENT} fillOpacity="0.1"
+            stroke={ACCENT} strokeWidth="2" strokeOpacity="1"
+            initial={{ opacity: 0, x: b.x + 30 }}
+            animate={{ opacity: [0, 0, 1, 1, 1, 0], x: [b.x + 30, b.x + 30, b.x, b.x, b.x, b.x] }}
+            transition={{ duration: cycle, times: [0, t, Math.min(t + 0.06, 0.93), 0.88, 0.95, 1], repeat: Infinity, ease: "easeOut" }}
           />
         );
       })}
@@ -344,26 +186,147 @@ function BrickWall() {
   );
 }
 
-/* ---- Dust / spark particles drifting up -------------------------------- */
+/* ── Tower crane: mast + jib + trolley + hook ── */
+function TowerCrane() {
+  const MX = 650;   // mast centre X (open space to the left of the ticker panel)
+  const MT = 110;   // mast top Y
+  const JIB_END = 950;
+  const CJ_END = 540;
+  const liftDur = 7;
+  const liftTimes = [0, 0.1, 0.45, 0.75, 1];
 
+  const s = { stroke: ACCENT, strokeWidth: 2.4, strokeLinecap: "round" as const, fill: "none" };
+
+  return (
+    <motion.g
+      filter="url(#glow-strong)"
+      style={{ transformBox: "fill-box", transformOrigin: `${MX}px ${MT}px` }}
+      animate={{ rotate: [0, 0.6, 0, -0.6, 0] }}
+      transition={{ duration: 16, repeat: Infinity, ease: "easeInOut" }}
+    >
+      {/* foundation */}
+      <rect x={MX - 36} y={GROUND - 6} width={72} height={14}
+        stroke={ACCENT} strokeWidth="2.5" fill={ACCENT} fillOpacity="0.1" />
+
+      {/* mast — solid double-chord truss */}
+      {[MX - 9, MX + 9].map((cx, i) => (
+        <line key={i} x1={cx} y1={GROUND - 6} x2={cx} y2={MT} {...s} />
+      ))}
+      {/* mast rungs */}
+      {Array.from({ length: 14 }).map((_, i) => {
+        const y = GROUND - 30 - i * 32;
+        return (
+          <g key={i}>
+            <line x1={MX - 9} y1={y} x2={MX + 9} y2={y} {...s} strokeWidth={1.5} strokeOpacity={0.6} />
+            <line x1={i % 2 === 0 ? MX - 9 : MX + 9} y1={y}
+              x2={i % 2 === 0 ? MX + 9 : MX - 9} y2={y - 32} {...s} strokeWidth={1.2} strokeOpacity={0.5} />
+          </g>
+        );
+      })}
+
+      {/* A-frame apex */}
+      <line x1={MX} y1={MT - 32} x2={MX - 9} y2={MT} {...s} />
+      <line x1={MX} y1={MT - 32} x2={MX + 9} y2={MT} {...s} />
+
+      {/* jib top chord */}
+      <line x1={MX} y1={MT - 4} x2={JIB_END} y2={MT + 22} {...s} strokeWidth={2.5} />
+      {/* jib bottom chord */}
+      <line x1={MX} y1={MT + 22} x2={JIB_END} y2={MT + 42} {...s} strokeWidth={2} />
+      {/* jib verticals */}
+      {Array.from({ length: 8 }).map((_, i) => {
+        const t = i / 7;
+        const x = MX + t * (JIB_END - MX);
+        return <line key={i} x1={x} y1={MT - 4 + t * 26} x2={x} y2={MT + 22 + t * 20} {...s} strokeWidth={1.4} strokeOpacity={0.65} />;
+      })}
+      {/* apex → jib cables */}
+      <line x1={MX} y1={MT - 32} x2={JIB_END} y2={MT + 22} {...s} strokeOpacity={0.45} strokeWidth={1.5} />
+
+      {/* counter-jib */}
+      <line x1={MX} y1={MT + 14} x2={CJ_END} y2={MT + 34} {...s} strokeWidth={2} />
+      <line x1={MX} y1={MT + 32} x2={CJ_END} y2={MT + 52} {...s} strokeWidth={1.6} />
+      <line x1={MX} y1={MT - 32} x2={CJ_END} y2={MT + 34} {...s} strokeOpacity={0.4} strokeWidth={1.4} />
+
+      {/* counterweight */}
+      <rect x={CJ_END - 4} y={MT + 34} width={30} height={28}
+        fill={ACCENT} fillOpacity="0.18" stroke={ACCENT} strokeWidth="2" />
+
+      {/* travelling trolley + cable + load */}
+      <motion.g
+        animate={{ x: [0, 200, 200, 50, 0] }}
+        transition={{ duration: liftDur, times: liftTimes, repeat: Infinity, ease: "easeInOut" }}
+      >
+        {/* trolley box */}
+        <rect x={MX + 60} y={MT + 24} width={22} height={12}
+          fill={CYAN} fillOpacity="0.3" stroke={CYAN} strokeWidth="2" />
+
+        {/* cable — length animates */}
+        <motion.line
+          x1={MX + 71} x2={MX + 71} y1={MT + 36}
+          stroke={CYAN} strokeWidth="1.8" strokeOpacity="0.95"
+          animate={{ y2: [GROUND - 18, GROUND - 18, MT + 120, MT + 120, GROUND - 18] }}
+          transition={{ duration: liftDur, times: liftTimes, repeat: Infinity, ease: "easeInOut" }}
+        />
+
+        {/* load block */}
+        <motion.g
+          animate={{ y: [0, 0, -(GROUND - 18 - (MT + 120)), -(GROUND - 18 - (MT + 120)), 0] }}
+          transition={{ duration: liftDur, times: liftTimes, repeat: Infinity, ease: "easeInOut" }}
+        >
+          <rect x={MX + 47} y={GROUND - 30} width={48} height={28}
+            fill={ACCENT} fillOpacity="0.2" stroke={ACCENT} strokeWidth="2.2" />
+          {/* load detail lines */}
+          <line x1={MX + 47} y1={GROUND - 16} x2={MX + 95} y2={GROUND - 16}
+            stroke={ACCENT} strokeWidth="1" strokeOpacity="0.5" />
+          <line x1={MX + 71} y1={GROUND - 30} x2={MX + 71} y2={GROUND - 2}
+            stroke={ACCENT} strokeWidth="1" strokeOpacity="0.5" />
+        </motion.g>
+      </motion.g>
+    </motion.g>
+  );
+}
+
+/* ── Scaffolding frame beside tower ── */
+function Scaffolding() {
+  const sx = 310;
+  const levels = 7;
+  const lh = 48;
+  const sw = 60;
+
+  return (
+    <g filter="url(#glow)" strokeOpacity="0.55" stroke={ACCENT} strokeWidth="1.8" fill="none">
+      <line x1={sx} y1={GROUND} x2={sx} y2={GROUND - levels * lh} />
+      <line x1={sx + sw} y1={GROUND} x2={sx + sw} y2={GROUND - levels * lh} />
+      {Array.from({ length: levels + 1 }).map((_, i) => (
+        <g key={i}>
+          <line x1={sx} y1={GROUND - i * lh} x2={sx + sw} y2={GROUND - i * lh} />
+          {i < levels && (
+            <line x1={i % 2 === 0 ? sx : sx + sw} y1={GROUND - i * lh}
+              x2={i % 2 === 0 ? sx + sw : sx} y2={GROUND - (i + 1) * lh} />
+          )}
+        </g>
+      ))}
+    </g>
+  );
+}
+
+/* ── Rising dust / spark particles ── */
 function Particles() {
-  const dots = Array.from({ length: 16 }).map((_, i) => ({
-    x: 120 + ((i * 83) % 1240),
-    delay: (i % 8) * 0.7,
-    dur: 5 + (i % 5),
-    r: i % 3 === 0 ? 1.8 : 1.1,
+  const dots = Array.from({ length: 22 }).map((_, i) => ({
+    x: 80 + ((i * 71) % 1280),
+    delay: (i * 0.45) % 5,
+    dur: 4 + (i % 5) * 0.7,
+    r: i % 4 === 0 ? 2.5 : 1.4,
+    color: i % 3 === 0 ? CYAN : ACCENT,
   }));
 
   return (
     <g>
       {dots.map((d, i) => (
-        <motion.circle
-          key={`p-${i}`}
-          cx={d.x}
-          r={d.r}
-          fill={i % 2 === 0 ? ACCENT : CYAN}
+        <motion.circle key={i}
+          cx={d.x} r={d.r}
+          fill={d.color} filter="url(#glow)"
           initial={{ cy: GROUND, opacity: 0 }}
-          animate={{ cy: [GROUND, GROUND - 180], opacity: [0, 0.7, 0] }}
+          animate={{ cy: [GROUND, GROUND - 220], opacity: [0, 0.9, 0] }}
           transition={{ duration: d.dur, delay: d.delay, repeat: Infinity, ease: "easeOut" }}
         />
       ))}
