@@ -113,13 +113,13 @@ export function Hero() {
           </motion.div>
         </div>
 
-        {/* Right — command center [TEMPORARILY HIDDEN] */}
+        {/* Right — command center */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.94, y: 36 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
+          initial={{ opacity: 0, scale: 0.94, y: 36, rotateY: -12 }}
+          animate={{ opacity: 1, scale: 1, y: 0, rotateY: -6 }}
           transition={{ duration: 1.1, ease, delay: 0.2 }}
-          style={{ y: panelY, rotate: panelRotate }}
-          className="relative hidden"
+          style={{ y: panelY, rotate: panelRotate, perspective: 1000 }}
+          className="relative"
         >
           {/* orbiting glow rings */}
           <div className="pointer-events-none absolute left-1/2 top-1/2 -z-10 h-[120%] w-[120%] -translate-x-1/2 -translate-y-1/2">
@@ -128,7 +128,7 @@ export function Hero() {
           </div>
           <div className="absolute -inset-8 -z-10 rounded-[2.5rem] bg-accent/15 blur-[90px] animate-glow" />
 
-          <div className="conic-border group rounded-3xl">
+          <div className="conic-border group rounded-3xl opacity-90">
             <VerificationTicker />
           </div>
 
