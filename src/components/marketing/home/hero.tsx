@@ -6,6 +6,7 @@ import { ArrowRight, PlayCircle, ShieldCheck, Star, Sparkles } from "lucide-reac
 import { ButtonLink } from "@/components/ui/button";
 import { Magnetic } from "@/components/ui/magnetic";
 import { Ambient } from "@/components/ui/ambient";
+import { ConstructionScene } from "@/components/ui/construction-scene";
 import { VerificationTicker } from "./verification-ticker";
 
 const ease = [0.22, 1, 0.36, 1] as const;
@@ -30,12 +31,12 @@ export function Hero() {
     <section ref={ref} className="relative overflow-hidden pt-32 pb-24 sm:pt-40 sm:pb-32">
       <Ambient />
 
-      {/* animated skyline silhouette */}
+      {/* animated blueprint construction scene */}
       <motion.div
         style={{ y: skylineY }}
-        className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 opacity-[0.18]"
+        className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-[78%]"
       >
-        <Skyline />
+        <ConstructionScene opacity={0.6} />
       </motion.div>
 
       <div className="mx-auto grid w-full max-w-7xl grid-cols-1 items-center gap-14 px-5 sm:px-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-10">
@@ -160,37 +161,3 @@ export function Hero() {
   );
 }
 
-function Skyline() {
-  return (
-    <svg viewBox="0 0 1440 240" className="h-auto w-full" preserveAspectRatio="xMidYMax meet">
-      <defs>
-        <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#00e676" stopOpacity="0.5" />
-          <stop offset="100%" stopColor="#00e676" stopOpacity="0" />
-        </linearGradient>
-      </defs>
-      <g fill="url(#sky)">
-        <rect x="40" y="120" width="60" height="120" />
-        <rect x="110" y="80" width="48" height="160" />
-        <rect x="168" y="150" width="40" height="90" />
-        <rect x="225" y="60" width="70" height="180" />
-        <rect x="305" y="110" width="44" height="130" />
-        <rect x="360" y="170" width="60" height="70" />
-        <rect x="440" y="40" width="56" height="200" />
-        <rect x="505" y="130" width="50" height="110" />
-        <rect x="568" y="90" width="64" height="150" />
-        <rect x="645" y="150" width="42" height="90" />
-        <rect x="700" y="70" width="80" height="170" />
-        <rect x="792" y="120" width="46" height="120" />
-        <rect x="850" y="50" width="58" height="190" />
-        <rect x="920" y="140" width="52" height="100" />
-        <rect x="985" y="100" width="66" height="140" />
-        <rect x="1062" y="160" width="44" height="80" />
-        <rect x="1118" y="80" width="60" height="160" />
-        <rect x="1190" y="130" width="48" height="110" />
-        <rect x="1250" y="60" width="72" height="180" />
-        <rect x="1334" y="120" width="56" height="120" />
-      </g>
-    </svg>
-  );
-}

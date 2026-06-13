@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { ConstructionScene } from "./construction-scene";
 
 /** Cinematic layered background: animated aurora blobs + grid + vignette. Pure CSS. */
 export function Ambient({
@@ -45,6 +46,9 @@ export function PageHeader({
   return (
     <header className="relative overflow-hidden border-b border-line pt-36 pb-20 sm:pt-44 sm:pb-24">
       <Ambient />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-[85%]">
+        <ConstructionScene opacity={0.32} />
+      </div>
       <div className="relative mx-auto w-full max-w-7xl px-5 sm:px-8">
         <div className="flex max-w-3xl flex-col gap-5">
           <span className="inline-flex w-fit items-center gap-2 rounded-full border border-line bg-white/[0.04] px-3.5 py-1.5 text-xs font-medium uppercase tracking-[0.18em] text-muted backdrop-blur-md">
