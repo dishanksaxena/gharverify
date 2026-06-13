@@ -20,9 +20,10 @@ export function CtaBand({
     <section className="relative py-20 sm:py-28">
       <Container>
         <Reveal>
-          <div className="relative overflow-hidden rounded-3xl border border-line bg-gradient-to-b from-surface to-base p-8 text-center shadow-card sm:p-16">
-            <div className="pointer-events-none absolute inset-0 grid-bg opacity-40" />
-            <div className="pointer-events-none absolute -top-24 left-1/2 h-72 w-[600px] -translate-x-1/2 rounded-full bg-accent/15 blur-[110px]" />
+          <div className="group conic-border relative overflow-hidden rounded-3xl border border-line bg-gradient-to-b from-surface to-base p-8 text-center shadow-float sm:p-16">
+            <div className="pointer-events-none absolute inset-0 dot-bg opacity-50 radial-fade" />
+            <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accent/60 to-transparent" />
+            <div className="pointer-events-none absolute -top-24 left-1/2 h-72 w-[600px] -translate-x-1/2 rounded-full bg-accent/20 blur-[110px] animate-glow" />
             <div className="relative">
               <span className="inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent/10 px-3.5 py-1.5 text-xs font-medium uppercase tracking-[0.18em] text-accent">
                 <ShieldCheck className="h-3.5 w-3.5" />

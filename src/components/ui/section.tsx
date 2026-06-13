@@ -63,7 +63,7 @@ export function SectionHeading({
       )}
     >
       {eyebrow && <Eyebrow>{eyebrow}</Eyebrow>}
-      <h2 className="text-balance text-3xl font-bold leading-[1.08] text-fg sm:text-4xl md:text-5xl">
+      <h2 className="text-balance text-gradient text-3xl font-bold leading-[1.08] sm:text-4xl md:text-5xl">
         {title}
       </h2>
       {description && (

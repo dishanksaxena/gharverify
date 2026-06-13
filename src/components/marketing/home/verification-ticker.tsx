@@ -28,7 +28,12 @@ export function VerificationTicker() {
   const complete = active >= steps.length;
 
   return (
-    <div className="relative w-full overflow-hidden rounded-3xl border border-line bg-surface/80 p-5 shadow-card backdrop-blur-xl sm:p-6">
+    <div className="relative w-full overflow-hidden rounded-3xl border border-line bg-surface/85 p-5 shadow-float backdrop-blur-xl sm:p-6">
+      {/* sweeping scanline */}
+      <div
+        className="pointer-events-none absolute inset-x-0 top-0 z-20 h-24 bg-gradient-to-b from-accent/15 to-transparent"
+        style={{ animation: "scanline 4.5s ease-in-out infinite" }}
+      />
       {/* header */}
       <div className="flex items-center justify-between border-b border-line pb-4">
         <div className="flex items-center gap-2.5">

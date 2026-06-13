@@ -3,6 +3,7 @@ import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/marketing/header";
 import { Footer } from "@/components/marketing/footer";
+import { ScrollProgress } from "@/components/ui/scroll-progress";
 import { site } from "@/lib/site";
 
 const jakarta = Plus_Jakarta_Sans({
@@ -78,6 +79,7 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
+        <ScrollProgress />
         <Header />
         <main className="flex flex-col">{children}</main>
         <Footer />
