@@ -41,15 +41,23 @@ export function ConstructionScene({
               <feMergeNode in="SourceGraphic" />
             </feMerge>
           </filter>
-          {/* white gradient = show scene; use alpha to fade top */}
-          <linearGradient id="scene-fade" x1="0" y1="0" x2="0" y2="1">
+          {/* vertical fade — top is hidden, bottom is visible */}
+          <linearGradient id="scene-fade-y" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor="#fff" stopOpacity="0" />
-            <stop offset="28%" stopColor="#fff" stopOpacity="0.6" />
-            <stop offset="58%" stopColor="#fff" stopOpacity="1" />
+            <stop offset="35%" stopColor="#fff" stopOpacity="0.5" />
+            <stop offset="65%" stopColor="#fff" stopOpacity="1" />
+            <stop offset="100%" stopColor="#fff" stopOpacity="1" />
+          </linearGradient>
+          {/* horizontal fade — left third hidden so text stays clean */}
+          <linearGradient id="scene-fade-x" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stopColor="#fff" stopOpacity="0" />
+            <stop offset="22%" stopColor="#fff" stopOpacity="0.4" />
+            <stop offset="42%" stopColor="#fff" stopOpacity="1" />
             <stop offset="100%" stopColor="#fff" stopOpacity="1" />
           </linearGradient>
           <mask id="fade-mask">
-            <rect x="0" y="0" width="1440" height="560" fill="url(#scene-fade)" />
+            <rect x="0" y="0" width="1440" height="560" fill="url(#scene-fade-y)" />
+            <rect x="0" y="0" width="1440" height="560" fill="url(#scene-fade-x)" style={{ mixBlendMode: "multiply" }} />
           </mask>
         </defs>
 
@@ -113,15 +121,15 @@ function TowerBuilding() {
           >
             {/* slab */}
             <rect x={x} y={floorY} width={w} height={fh - 2}
-              fill={ACCENT} fillOpacity="0.07"
-              stroke={ACCENT} strokeWidth="2.2" strokeOpacity="1" />
+              fill={ACCENT} fillOpacity="0.04"
+              stroke={ACCENT} strokeWidth="1.6" strokeOpacity="0.65" />
             {/* windows */}
             {Array.from({ length: winsPerFloor }).map((_, w2) => (
               <motion.rect key={w2}
                 x={x + 12 + w2 * 38} y={floorY + 9}
                 width={winW} height={winH}
                 fill={CYAN}
-                animate={{ fillOpacity: [0, 0.5, 0.15, 0.5, 0.15, 0] }}
+                animate={{ fillOpacity: [0, 0.25, 0.08, 0.25, 0.08, 0] }}
                 transition={{ duration: 12, delay: w2 * 0.15, repeat: Infinity, ease: "easeInOut" }}
               />
             ))}
@@ -174,8 +182,8 @@ function BrickWall() {
             x={b.x} y={b.y}
             width={bw} height={bh}
             rx="2"
-            fill={ACCENT} fillOpacity="0.1"
-            stroke={ACCENT} strokeWidth="2" strokeOpacity="1"
+            fill={ACCENT} fillOpacity="0.06"
+            stroke={ACCENT} strokeWidth="1.6" strokeOpacity="0.7"
             initial={{ opacity: 0, x: b.x + 30 }}
             animate={{ opacity: [0, 0, 1, 1, 1, 0], x: [b.x + 30, b.x + 30, b.x, b.x, b.x, b.x] }}
             transition={{ duration: cycle, times: [0, t, Math.min(t + 0.06, 0.93), 0.88, 0.95, 1], repeat: Infinity, ease: "easeOut" }}
