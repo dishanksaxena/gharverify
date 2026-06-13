@@ -46,8 +46,8 @@ export function PageHeader({
   return (
     <header className="relative overflow-hidden border-b border-line pt-36 pb-20 sm:pt-44 sm:pb-24">
       <Ambient />
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-[85%]">
-        <ConstructionScene opacity={0.32} />
+      <div className="pointer-events-none absolute inset-0 -z-10">
+        <ConstructionScene opacity={0.4} />
       </div>
       <div className="relative mx-auto w-full max-w-7xl px-5 sm:px-8">
         <div className="flex max-w-3xl flex-col gap-5">

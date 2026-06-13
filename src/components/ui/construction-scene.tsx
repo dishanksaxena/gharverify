@@ -90,7 +90,7 @@ export function ConstructionScene({
     >
       <svg
         viewBox="0 0 1440 620"
-        preserveAspectRatio="xMidYMax slice"
+        preserveAspectRatio="xMidYMax meet"
         className="h-full w-full"
         style={{ opacity }}
       >
@@ -108,8 +108,9 @@ export function ConstructionScene({
           </linearGradient>
           {/* fade the whole scene toward the top so headlines stay readable */}
           <linearGradient id="cscene-mask" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#000" stopOpacity="0" />
-            <stop offset="34%" stopColor="#000" stopOpacity="0.55" />
+            <stop offset="0%" stopColor="#000" stopOpacity="0.1" />
+            <stop offset="16%" stopColor="#000" stopOpacity="0.65" />
+            <stop offset="55%" stopColor="#000" stopOpacity="0.95" />
             <stop offset="100%" stopColor="#000" stopOpacity="1" />
           </linearGradient>
           <mask id="cscene-fade">
