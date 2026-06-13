@@ -6,8 +6,16 @@ import { ArrowRight, PlayCircle, ShieldCheck, Star, Sparkles } from "lucide-reac
 import { ButtonLink } from "@/components/ui/button";
 import { Magnetic } from "@/components/ui/magnetic";
 import { Ambient } from "@/components/ui/ambient";
-import { ConstructionScene } from "@/components/ui/construction-scene";
-import { VerificationTicker } from "./verification-ticker";
+import dynamic from "next/dynamic";
+
+const ConstructionScene = dynamic(
+  () => import("@/components/ui/construction-scene").then((m) => m.ConstructionScene),
+  { ssr: false, loading: () => null }
+);
+const VerificationTicker = dynamic(
+  () => import("./verification-ticker").then((m) => m.VerificationTicker),
+  { ssr: false, loading: () => null }
+);
 
 const ease = [0.22, 1, 0.36, 1] as const;
 

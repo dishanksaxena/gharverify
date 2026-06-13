@@ -74,6 +74,10 @@ export default function RootLayout({
       data-scroll-behavior="smooth"
       className={`${jakarta.variable} h-full antialiased`}
     >
+      <head>
+        <link rel="preconnect" href="https://api.fontshare.com" />
+        <link rel="dns-prefetch" href="https://api.fontshare.com" />
+      </head>
       <body className="flex min-h-full flex-col bg-base text-fg">
         <script
           type="application/ld+json"

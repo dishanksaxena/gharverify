@@ -319,12 +319,12 @@ function Scaffolding() {
 
 /* ── Rising dust / spark particles ── */
 function Particles() {
-  const dots = Array.from({ length: 22 }).map((_, i) => ({
-    x: 80 + ((i * 71) % 1280),
-    delay: (i * 0.45) % 5,
-    dur: 4 + (i % 5) * 0.7,
-    r: i % 4 === 0 ? 2.5 : 1.4,
-    color: i % 3 === 0 ? CYAN : ACCENT,
+  const dots = Array.from({ length: 10 }).map((_, i) => ({
+    x: 80 + ((i * 137) % 1280),
+    delay: (i * 0.9) % 5,
+    dur: 4.5 + (i % 3) * 0.8,
+    r: i % 3 === 0 ? 2.2 : 1.3,
+    color: i % 2 === 0 ? CYAN : ACCENT,
   }));
 
   return (
