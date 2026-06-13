@@ -113,13 +113,13 @@ export function Hero() {
           </motion.div>
         </div>
 
-        {/* Right — command center */}
+        {/* Right — command center [TEMPORARILY HIDDEN] */}
         <motion.div
           initial={{ opacity: 0, scale: 0.94, y: 36 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           transition={{ duration: 1.1, ease, delay: 0.2 }}
           style={{ y: panelY, rotate: panelRotate }}
-          className="relative"
+          className="relative hidden"
         >
           {/* orbiting glow rings */}
           <div className="pointer-events-none absolute left-1/2 top-1/2 -z-10 h-[120%] w-[120%] -translate-x-1/2 -translate-y-1/2">
