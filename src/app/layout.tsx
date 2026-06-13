@@ -14,6 +14,11 @@ const jakarta = Plus_Jakarta_Sans({
 
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
+  icons: {
+    icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
+    shortcut: "/icon.svg",
+    apple: "/icon.svg",
+  },
   title: {
     default: `${site.name} — ${site.tagline}`,
     template: `%s · ${site.name}`,
